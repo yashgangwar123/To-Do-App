@@ -23,14 +23,15 @@ export default function Todo() {
     let [toggleSubmit, setToggleSubmit] = useState(true)
     let [isEditItem, setIsEditItem] = useState(null)
 
+
     const addItem = () => {
         if (!inputData) {
             alert("Please write something in the input box")
         } else if (inputData && !toggleSubmit) {
             setItems(
                 items.map((item) => {
-                    if (item.time == isEditItem) {
-                        return { ...item, data: inputData }
+                    if (item.time === isEditItem) {
+                        return { ...item, data: inputData, line: false, checkbox: false }
                     }
                     return item;
                 })
@@ -43,7 +44,9 @@ export default function Todo() {
             let allInputData = {
                 data: inputData,
                 date: today.getFullYear() + '/' + (today.getMonth() + 1) + '/' + today.getDate(),
-                time: today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds()
+                time: today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds(),
+                line: false,
+                checkbox: false
             }
             setItems([...items, allInputData])
             setInputData('')
@@ -53,11 +56,26 @@ export default function Todo() {
 
     const deleteItem = (index) => {
         const updateItems = items.filter((item) => {
-            return index != item.time
+            return index !== item.time
         })
 
         setItems(updateItems)
     }
+
+
+    const handleCheckbox = (index) => {
+        setItems(
+            items.map((item) => {
+                if (index === item.time && item.line === false) {
+                    return { ...item, line: true, checkbox: true }
+                } else if (index === item.time && item.line === true) {
+                    return { ...item, line: false, checkbox: false }
+                }
+                return item;
+            })
+        )
+    }
+
 
 
     const removeAll = () => {
@@ -67,7 +85,7 @@ export default function Todo() {
 
     const editItem = (id) => {
         let newEditItem = items.find((item) => {
-            return item.time == id
+            return item.time === id
         })
         console.log(newEditItem);
         setToggleSubmit(false)
@@ -103,7 +121,7 @@ export default function Todo() {
                                 setInputData(event.target.value)
                             }}
                             onKeyUp={(event) => {
-                                if (event.key == "Enter") {
+                                if (event.key === "Enter") {
                                     addItem()
                                 }
                             }}></input>
@@ -121,7 +139,11 @@ export default function Todo() {
                                 return (
                                     <div className="each" key={item.time}>
                                         <div className="eachItem">
-                                            <h3>{item.data}</h3>
+                                            {
+                                                item.checkbox === false ? <i className="far fa-square" title="Check Item" onClick={() => handleCheckbox(item.time)}></i>:
+                                                <i className="fas fa-check-square" title="UnCheck Item" onClick={() => handleCheckbox(item.time)}></i>
+                                            }
+                                            <h3 style={{ textDecoration: item.line === true ? 'line-through ' : 'none' }}>{item.data}</h3>
                                             <div className="todo-btn">
                                                 <i className="far fa-edit" title="Edit Item" onClick={() => editItem(item.time)}></i>
                                                 <i className="far fa-trash-alt" title="Delete Item" onClick={() => deleteItem(item.time)}></i>
